@@ -1,9 +1,9 @@
 # 👋 Hello ! I'm Nicolas / _"Nicos"_
 
-[![nSimonFR Page Views](http://hits.dwyl.com/nSimonFR/nSimonFR.svg)](https://github.com/nSimonFR)
 [![wakatime](https://wakatime.com/badge/user/492f83d0-d65f-4ba4-a018-6842bcf84d33.svg)](https://wakatime.com/@492f83d0-d65f-4ba4-a018-6842bcf84d33)
 
 I'm a fullstack dev working in Paris 🗼
+
 - 🚚 I currently work at [Trusk](https://trusk.com), a transportation and logistics startup _(B2B2C)_, leading a team to help solve lastmile delivery with cool microservice-based technologies !
 - ☎️ I'm co-founder and co-maker of [Gaston](https://gaston.tel), a SaaS and mobile app that acts as a smart voicemail assistant for busy people
 - 👨‍💻 I used to be a freelance developer, innovation consultant, and have given computer courses and IT support
