@@ -34,11 +34,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build CV
-        run: npm run cv:build
-
+      # The only published CV is the Reactive Resume export (English); the
+      # markdown-built French CVs are no longer published.
       - name: Copy CV
-        run: cp cv/dist/*.pdf cv/static/*.pdf nsimon.fr/public/
+        run: cp cv/static/*.pdf nsimon.fr/public/
 
       - name: Build Website
         run: npm run website:build
