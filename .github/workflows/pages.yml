@@ -38,7 +38,7 @@ jobs:
         run: npm run cv:build
 
       - name: Copy CV
-        run: cp cv/dist/*.pdf nsimon.fr/public/
+        run: cp cv/dist/*.pdf cv/static/*.pdf nsimon.fr/public/
 
       - name: Build Website
         run: npm run website:build
