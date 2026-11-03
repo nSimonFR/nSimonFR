@@ -27,7 +27,7 @@ export const spawnBoids = (count, width, height) => {
     const angle = heading + (Math.random() - 0.5) * 2.4;
     const tier = pick([0.7, 0.25, 0.05]);
     const size = [0.8, 1.15, 1.5][tier] + Math.random() * 0.15;
-    const speed = 110 / Math.sqrt(size);
+    const speed = 140 / Math.sqrt(size);
     return {
       x: Math.random() * width,
       y: Math.random() * height,

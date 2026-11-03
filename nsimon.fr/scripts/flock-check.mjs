@@ -25,8 +25,11 @@ const LIMITS = {
   top5share: 0.3, // share of boids in the busiest 5% of cells
   overlap: 0.03, // boids with a neighbour closer than 5px
   largestFlock: 0.85, // share of boids in the largest connected group
-  minSpeed: 85, // px/s, mean
+  minSpeed: 115, // px/s, mean
+  pointerClear: 0.15, // boids left near a held pointer vs. an even spread
 };
+const POINTER_RADIUS = 100; // px, the zone that should empty out
+const POINTER_HOLD = 3; // s
 
 const metrics = ({ width, height, stride, data }) => {
   const n = data.length / stride, pts = [];
@@ -105,6 +108,21 @@ try {
       }
       if (m.speed < LIMITS.minSpeed) failures.push(`${name} @${cp}s: speed=${m.speed} < ${LIMITS.minSpeed}`);
     }
+    // Pointer avoidance: hold the pointer mid-screen and check boids clear out.
+    const mouse = { x: viewport.width / 2, y: viewport.height / 2 };
+    const near = ({ data, stride }) => {
+      let c = 0;
+      for (let i = 0; i < data.length; i += stride) if (Math.hypot(data[i] - mouse.x, data[i + 1] - mouse.y) < POINTER_RADIUS) c++;
+      return c;
+    };
+    const total = await page.evaluate(() => window.__boids.count);
+    const expected = (total * Math.PI * POINTER_RADIUS ** 2) / (viewport.width * viewport.height);
+    await page.evaluate(([s, m]) => window.__boids.step(s, 1 / 60, m), [POINTER_HOLD * 60, mouse]);
+    const left = near(await page.evaluate(() => window.__boids.read()));
+    const clear = +(left / expected).toFixed(2);
+    console.log(`pointer held ${POINTER_HOLD}s: ${left} boids within ${POINTER_RADIUS}px (even spread would be ~${expected.toFixed(0)}, ratio ${clear})`);
+    if (clear > LIMITS.pointerClear) failures.push(`${name}: pointer avoidance ratio=${clear} > ${LIMITS.pointerClear}`);
+
     errors.forEach((e) => failures.push(`${name}: page error: ${e}`));
     console.log(`\n${name}, ${await page.evaluate(() => window.__boids.count)} boids`);
     console.table(rows);

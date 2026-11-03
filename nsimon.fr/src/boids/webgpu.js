@@ -210,8 +210,10 @@ export const start = async () => {
       count,
       pause: () => cancelAnimationFrame(raf),
       resume: run,
-      step: async (steps, dt = 1 / 60) => {
-        pointer.strength = 0;
+      // `mouse`: optional { x, y } held at full strength for the whole run.
+      step: async (steps, dt = 1 / 60, mouse = null) => {
+        pointer.strength = mouse ? 1 : 0;
+        if (mouse) Object.assign(pointer, { x: mouse.x, y: mouse.y });
         for (let i = 0; i < steps; i += 1) {
           time += dt;
           writeParams(dt, 1);
