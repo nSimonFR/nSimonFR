@@ -36,7 +36,7 @@ export const start = async () => {
     const buffer = device.createBuffer({
       label: `boids ${i}`,
       size: data.byteLength,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC,
     });
     device.queue.writeBuffer(buffer, 0, data);
     return buffer;
@@ -202,6 +202,41 @@ export const start = async () => {
 
   run();
   fadeIn(canvas);
+
+  // Dev-only hook for long-run tests (stripped from production builds):
+  // fast-forward the simulation and read every boid back from the GPU.
+  if (import.meta.env.DEV) {
+    window.__boids = {
+      count,
+      pause: () => cancelAnimationFrame(raf),
+      resume: run,
+      step: async (steps, dt = 1 / 60) => {
+        pointer.strength = 0;
+        for (let i = 0; i < steps; i += 1) {
+          time += dt;
+          writeParams(dt, 1);
+          const encoder = device.createCommandEncoder();
+          encodeStep(encoder);
+          device.queue.submit([encoder.finish()]);
+          if (i % 200 === 199) await device.queue.onSubmittedWorkDone();
+        }
+        const encoder = device.createCommandEncoder();
+        encodeDraw(encoder);
+        device.queue.submit([encoder.finish()]);
+        await device.queue.onSubmittedWorkDone();
+      },
+      read: async () => {
+        const read = device.createBuffer({ size: data.byteLength, usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST });
+        const encoder = device.createCommandEncoder();
+        encoder.copyBufferToBuffer(boidBuffers[current], 0, read, 0, data.byteLength);
+        device.queue.submit([encoder.finish()]);
+        await read.mapAsync(GPUMapMode.READ);
+        const out = Array.from(new Float32Array(read.getMappedRange().slice(0)));
+        read.destroy();
+        return { width, height, stride: FLOATS_PER_BOID, data: out };
+      },
+    };
+  }
 
   const footer = document.querySelector("#footer-ref");
   footer.href = "https://github.com/nSimonFR/nSimonFR/tree/main/nsimon.fr/src/boids";
