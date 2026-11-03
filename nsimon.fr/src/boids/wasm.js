@@ -1,25 +1,18 @@
 /**
- * Simple boids in canvas example using PixiJS
- * => https://pixijs.download/
+ * WASM fallback (Rust simulation from wasm-boids, drawn with PixiJS).
+ * Same palette, density, spawn and reduced-motion handling as the WebGPU one.
  */
 import * as PIXI from "pixi.js";
 import { Rules, Universe } from "wasm-boids";
+import { PALETTE, boidCount, createPointer, fadeIn, mountCanvas, reducedMotion, spawnBoids } from "./common.js";
 
-const rand = (max) => Math.floor(Math.random() * max);
-const colorize = (color) => {
-  const r = color > 10 ? "ff" : "aa";
-  const g = color % 3 ? "ff" : "22";
-  const b = color > 5 ? "ff" : "77";
+const width = window.innerWidth;
+const height = window.innerHeight;
+// The Rust simulation runs on the CPU, so keep it lighter than the GPU one.
+const count = boidCount(width, height, { min: 120, max: 500, perPx: 2600 });
 
-  return `0x${r}${g}${b}`;
-};
-
-let width = window.innerWidth;
-let height = window.innerHeight;
-const count = 500;
-
-const app = new PIXI.Application({ resizeTo: window });
-document.body.appendChild(app.view);
+const app = new PIXI.Application({ resizeTo: window, antialias: true, backgroundAlpha: 0 });
+mountCanvas(app.view);
 
 const boidGraphic = new PIXI.Graphics();
 boidGraphic.beginFill(0xffffff);
@@ -29,61 +22,59 @@ boidGraphic.lineTo(-20, -10);
 const boidTexture = app.renderer.generateTexture(boidGraphic);
 
 const universe = Universe.new(width, height);
-const boidSprites = [];
-for (let i = 0; i < count; i += 1) {
-  const x = rand(width);
-  const y = rand(height);
-  const rotation = rand(360) * (Math.PI / 180);
-
-  const rnd = i % 100 ? (i % 10 ? (i % 2 ? 3 : 6) : 8) : 15;
-  const scale = (2 + rnd / 2) / 10;
-  const vspeed = 2 / Math.sqrt(scale);
-  const speed = vspeed;
-
-  const rules = Rules.new(speed, scale, 100, 5, 0.1, 0.005, 0.2, 0.001);
-
-  universe.create_boid(x, y, rotation, rules);
+const boidSprites = spawnBoids(count, width, height).map((b) => {
+  const rotation = Math.atan2(b.vy, b.vx);
+  const scale = 0.3 * b.size;
+  const speed = 2 / Math.sqrt(scale);
+  universe.create_boid(b.x, b.y, rotation, Rules.new(speed, scale, 100, 5, 0.1, 0.005, 0.2, 0.001));
 
   const sprite = new PIXI.Sprite(boidTexture);
-  sprite.tint = colorize(rnd);
-  sprite.scale.x = scale;
-  sprite.scale.y = scale;
-  sprite.x = x;
-  sprite.y = y;
+  sprite.anchor.set(0.5);
+  sprite.tint = PALETTE[b.tint];
+  sprite.alpha = 0.6 + 0.35 * Math.min(1, (b.size - 0.7) / 0.9);
+  sprite.scale.set(scale);
+  sprite.position.set(b.x, b.y);
   sprite.rotation = rotation;
   app.stage.addChild(sprite);
-  boidSprites.push(sprite);
-}
+  return sprite;
+});
 
 const drawBoids = () => {
   for (let i = 0; i < count; i += 1) {
     const boid = universe.get_boid(i);
-    const boidSprite = boidSprites[i];
-
-    boidSprite.x = boid.x();
-    boidSprite.y = boid.y();
-    boidSprite.rotation = boid.rotation();
+    const sprite = boidSprites[i];
+    sprite.x = boid.x();
+    sprite.y = boid.y();
+    sprite.rotation = boid.rotation();
   }
 };
 
-let mouseX, mouseY;
-window.addEventListener("mousemove", (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
+window.addEventListener("resize", () => universe.resize(window.innerWidth, window.innerHeight, false));
 
-  setTimeout(() => {
-    mouseX = 0;
-    mouseY = 0;
-  }, 2000);
-});
-
-window.addEventListener("resize", () =>
-  universe.resize(window.innerWidth, window.innerHeight, false)
-);
-
-const renderLoop = () => {
-  universe.tick(mouseX, mouseY);
+const pointer = createPointer();
+let last = performance.now();
+const tick = () => {
+  const now = performance.now();
+  pointer.update(now, (now - last) / 1000);
+  last = now;
+  const active = pointer.strength > 0.5;
+  universe.tick(active ? pointer.x : 0, active ? pointer.y : 0);
   drawBoids();
-  requestAnimationFrame(renderLoop);
 };
-renderLoop();
+
+const run = () => {
+  app.ticker.remove(tick);
+  if (reducedMotion.matches) {
+    for (let i = 0; i < 240; i += 1) universe.tick(0, 0);
+    drawBoids();
+    app.render();
+    app.ticker.stop();
+  } else {
+    app.ticker.add(tick);
+    app.ticker.start();
+  }
+};
+
+reducedMotion.addEventListener("change", run);
+run();
+fadeIn(app.view);

@@ -1,107 +1,205 @@
+:root {
+	--bg: #000;
+	--fg: #fff;
+	--fg-dim: rgba(255, 255, 255, 0.7);
+	--accent: #ab47bc;
+	--accent-light: #ce93d8;
+	--font: "Poiret One", Arial, sans-serif;
+}
+
+html {
+	background: var(--bg);
+	color-scheme: dark;
+}
+
 body {
-	font-family: "Poiret One", Arial, sans-serif;
-	text-align: center;
-	overflow: hidden;
 	margin: 0;
-	background: black;
-	color: white;
+	min-height: 100vh;
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	background: var(--bg);
+	color: var(--fg);
+	font-family: var(--font);
+	text-align: center;
+}
+
+/* Animated background: fixed behind the content, fades in (no pop-in). */
+canvas.boids {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 1.2s ease-out;
+}
+
+canvas.boids.ready {
+	opacity: 1;
 }
 
 .page {
-	position:absolute;
-
-	top:45%;
-	left:50%;
-
-	-ms-transform: translateX(-50%) translateY(-50%);
-	-webkit-transform: translate(-50%,-50%);
-	transform: translate(-50%,-50%);
+	position: relative;
+	z-index: 1;
+	padding: 24px 16px 56px;
+	animation: appear 0.6s ease-out both;
 }
 
-.content {
-	background: #202020;
+/* Soft dark halo so the thin type stays readable over the flock. */
+.page::before {
+	content: "";
+	position: absolute;
+	inset: -10% -30%;
+	z-index: -1;
+	background: radial-gradient(closest-side, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.45) 60%, transparent);
+	pointer-events: none;
 }
 
-h1 {
-	font-size: 36px;
-	font-family: "Poiret One", Arial, sans-serif;
-}
-
-h2 {
-	font-size: 35px;
-}
-
-ul {
-	padding: 0;
-	list-style-type: none;
-	font-size: 23px;
-}
-
-a {
-	text-decoration: none;
+@keyframes appear {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
 }
 
 img {
-	max-width: 35vh;
-	border-style: solid;
-	border-width: 5px;
-	border-color: #AB47BC;
-	border-radius: 45vh;
+	display: block;
+	margin: 0 auto;
+	width: clamp(120px, 34vh, 320px);
+	height: auto;
+	aspect-ratio: 1;
+	border: 5px solid var(--accent);
+	border-radius: 50%;
+	box-shadow: 0 0 40px rgba(171, 71, 188, 0.35);
 }
 
-a:link {
-	color: white;
+h1 {
+	margin: 0.6em 0 0.4em;
+	font-size: clamp(28px, 5vh, 38px);
+	font-weight: 400;
+	letter-spacing: 0.02em;
 }
 
-a:visited {
-	color: white;
-}
-
-a:hover {
-	color: #AB47BC;
-}
-
-a:active {
-	color: #AB47BC;
-}
-
-footer {
-	margin-top:28px;
-	position:fixed;
-	bottom:0px;
-	height:28px;
-	width:100%;
-	font-size: 12px;
+ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	font-size: clamp(19px, 3vh, 23px);
 }
 
 li {
-	margin: 10px;
+	margin: 0.45em 0;
 }
 
 i {
-	font-size: 18px
+	font-size: 0.8em;
+	margin-right: 0.15em;
+}
+
+a {
+	color: var(--fg);
+	text-decoration: underline 1px transparent;
+	text-underline-offset: 0.25em;
+	transition: color 0.15s, text-decoration-color 0.15s;
+}
+
+a:hover {
+	color: var(--accent-light);
+	text-decoration-color: currentColor;
+}
+
+a:focus-visible {
+	outline: 2px solid var(--accent-light);
+	outline-offset: 4px;
+	border-radius: 4px;
+}
+
+.pair span {
+	color: var(--fg-dim);
+	margin: 0 0.15em;
+}
+
+.socials {
+	display: flex;
+	justify-content: center;
+	gap: 6px;
+	margin-top: 0.8em;
+}
+
+.socials a {
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	transition: color 0.15s, background-color 0.15s;
+}
+
+.socials a:hover {
+	background: rgba(171, 71, 188, 0.2);
+}
+
+.socials i {
+	font-size: 20px;
+	margin: 0;
 }
 
 .github-link {
-  position: relative;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 70px 70px 0 0;
-  border-color: #202020 transparent transparent transparent;
-}
-
-.github-link a {
-  position: absolute;
-  top: -60px;
-  left: 10px;
-}
-
-iframe {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
-	width: 100%;
-	height: 100%;
-	border: none;
+	z-index: 2;
+	width: 64px;
+	height: 64px;
+	background: linear-gradient(135deg, #2a2a2a 50%, transparent 50%);
+}
+
+.github-link i {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	font-size: 20px;
+	margin: 0;
+}
+
+footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1;
+	padding: 8px;
+	font-size: 14px;
+	pointer-events: none;
+}
+
+footer a {
+	color: var(--fg-dim);
+	pointer-events: auto;
+}
+
+/* Short screens (landscape phones): let the page scroll instead of clipping. */
+@media (max-height: 520px) {
+	body {
+		justify-content: flex-start;
+	}
+
+	footer {
+		position: static;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.page {
+		animation: none;
+	}
+
+	canvas.boids,
+	a {
+		transition: none;
+	}
 }

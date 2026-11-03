@@ -1,90 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <title> Nicolas Simon - nSimon.fr </title>
-  <link rel="stylesheet" type="text/css" href="style.css" />
-  <link href='http://fonts.googleapis.com/css?family=Poiret+One' rel='stylesheet' type='text/css' />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <meta charset="utf-8" />
+  <title>Nicolas Simon - nSimon.fr</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Nicolas Simon, fullstack developer in Paris: blog, recipes, CV and projects." />
+  <meta name="theme-color" content="#000000" />
   <meta name="google-site-verification" content="vIxM3C9gkD3tnGzNyvFGFkXjMdEINpujl3yjoj12wo8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poiret+One&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 
 <body>
-  <div class="page">
-    <img src="me.png" alt="author thumb" class="dot">
+  <main class="page">
+    <img src="me.png" alt="Portrait of Nicolas Simon" class="dot" width="320" height="320">
     <h1>Nicolas SIMON</h1>
-    <nav>
+    <nav aria-label="Links">
       <ul>
         <li>
-          <a href="https://github.com/nsimonfr" target="_blank">
-            <i class="fa-brands fa-github"></i>
+          <a href="https://github.com/nsimonfr" target="_blank" rel="noopener">
+            <i class="fa-brands fa-github" aria-hidden="true"></i>
             Github
           </a>
         </li>
         <li>
           <a href="https://blog.nsimon.fr">
-            <i class="fa fa-rss"></i>
+            <i class="fa fa-rss" aria-hidden="true"></i>
             Blog (EN)
           </a>
         </li>
         <li>
           <a href="https://blog.nsimon.fr/tags/recette">
-            <i class="fa fa-cutlery"></i>
-            Receipts (FR)
+            <i class="fa fa-utensils" aria-hidden="true"></i>
+            Recipes (FR)
           </a>
         </li>
-        <li>
-          <a href="FR_SHORT.pdf" target="_blank">
-            <i class="fa fa-user"></i>
-            CV (FR)
-          </a>
+        <li class="pair">
+          <i class="fa fa-user" aria-hidden="true"></i>
+          CV
+          <a href="FR_SHORT.pdf" target="_blank" rel="noopener" aria-label="CV in French">FR</a>
+          <span aria-hidden="true">·</span>
+          <a href="EN_SHORT.pdf" target="_blank" rel="noopener" aria-label="CV in English">EN</a>
         </li>
         <li>
-          <a href="EN_SHORT.pdf" target="_blank">
-            <i class="fa fa-user-o"></i>
-            CV (EN)
-          </a>
-        </li>
-        <li>
-          <a class="small" href="https://gaston.tel" target="_blank">
-            <i class="fa fa-phone"></i>
+          <a href="https://gaston.tel" target="_blank" rel="noopener">
+            <i class="fa fa-phone" aria-hidden="true"></i>
             Gaston
           </a>
         </li>
-        <li>
-          <a class="small" href="https://www.linkedin.com/in/nsimonfr" target="_blank">
-            <i class="fa-brands fa-linkedin"></i>
+        <li class="socials">
+          <a href="https://www.linkedin.com/in/nsimonfr" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
+            <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
           </a>
-          <a class="small" href="https://www.malt.fr/profile/nsimonfr" alt="hire me" target="_blank">
-            <i class="fa fa-suitcase"></i>
+          <a href="https://www.malt.fr/profile/nsimonfr" target="_blank" rel="noopener" aria-label="Hire me on Malt" title="Hire me on Malt">
+            <i class="fa fa-suitcase" aria-hidden="true"></i>
           </a>
-          <a class="small" href="https://twitter.com/nSimonFR" target="_blank">
-            <i class="fa-brands fa-twitter"></i>
+          <a href="https://twitter.com/nSimonFR" target="_blank" rel="noopener" aria-label="X (Twitter)" title="X (Twitter)">
+            <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
           </a>
-          <a class="small" href="https://telegram.me/nsimon" target="_blank">
-            <i class="fa-brands fa-telegram"></i>
+          <a href="https://telegram.me/nsimon" target="_blank" rel="noopener" aria-label="Telegram" title="Telegram">
+            <i class="fa-brands fa-telegram" aria-hidden="true"></i>
           </a>
-          <a class="small" href="https://cal.com/nsimonfr" target="_blank">
-            <i class="fa fa-calendar"></i>
+          <a href="https://cal.com/nsimonfr" target="_blank" rel="noopener" aria-label="Book a call" title="Book a call">
+            <i class="fa fa-calendar" aria-hidden="true"></i>
           </a>
         </li>
       </ul>
     </nav>
-  </div>
-  <div class="github-link">
-    <a href="https://github.com/nSimonFR/nSimonFR/tree/main/nsimon.fr" target="_blank">
-      <i class="fa-brands fa-github"></i>
-    </a>
-  </div>
+  </main>
+  <a class="github-link" href="https://github.com/nSimonFR/nSimonFR/tree/main/nsimon.fr" target="_blank" rel="noopener" aria-label="Source code of this website" title="Source code">
+    <i class="fa-brands fa-github" aria-hidden="true"></i>
+  </a>
   <footer id="footer">
-    <a href="https://github.com/nSimonFR/wasm-boids" target="_blank" id="footer-ref">
+    <a href="https://github.com/nSimonFR/wasm-boids" target="_blank" rel="noopener" id="footer-ref">
       Boids in WebAssembly (Rust + JS) !
     </a>
   </footer>
 
   <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
-  <script type="module" type="text/javascript" src="index.js"></script>
+  <script type="module" src="index.js"></script>
 </body>
 
 </html>
