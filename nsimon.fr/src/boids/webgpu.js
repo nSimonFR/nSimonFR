@@ -227,6 +227,11 @@ export const start = async () => {
         device.queue.submit([encoder.finish()]);
         await device.queue.onSubmittedWorkDone();
       },
+      // Restore a snapshot from read() (for A/B runs from the same state).
+      write: (snapshot) => {
+        time = snapshot.time;
+        device.queue.writeBuffer(boidBuffers[current], 0, new Float32Array(snapshot.data));
+      },
       read: async () => {
         const read = device.createBuffer({ size: data.byteLength, usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST });
         const encoder = device.createCommandEncoder();
@@ -235,7 +240,7 @@ export const start = async () => {
         await read.mapAsync(GPUMapMode.READ);
         const out = Array.from(new Float32Array(read.getMappedRange().slice(0)));
         read.destroy();
-        return { width, height, stride: FLOATS_PER_BOID, data: out };
+        return { width, height, time, stride: FLOATS_PER_BOID, data: out };
       },
     };
   }

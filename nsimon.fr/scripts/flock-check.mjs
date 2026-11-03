@@ -24,9 +24,12 @@ const LIMITS = {
   maxCellXmean: 8, // busiest 60px cell vs. average density
   top5share: 0.3, // share of boids in the busiest 5% of cells
   overlap: 0.03, // boids with a neighbour closer than 5px
-  largestFlock: 0.85, // share of boids in the largest connected group
+  // Share of boids in the largest connected group, averaged over the settled
+  // checkpoints: single snapshots spike when two flocks cross, a fused field
+  // stays at ~1.0.
+  largestFlockMean: 0.75,
   minSpeed: 115, // px/s, mean
-  pointerClear: 0.15, // boids left near a held pointer vs. an even spread
+  pointerClear: 0.4, // traffic near a held pointer vs. the same run without it (no avoidance ≈ 1)
 };
 const POINTER_RADIUS = 100; // px, the zone that should empty out
 const POINTER_HOLD = 3; // s
@@ -103,25 +106,47 @@ try {
       rows.push({ t: `${cp}s`, ...m });
       if (m.nan) failures.push(`${name} @${cp}s: ${m.nan} NaN boids`);
       if (cp < 60) continue;
-      for (const key of ["maxCellXmean", "top5share", "overlap", "largestFlock"]) {
+      for (const key of ["maxCellXmean", "top5share", "overlap"]) {
         if (m[key] > LIMITS[key]) failures.push(`${name} @${cp}s: ${key}=${m[key]} > ${LIMITS[key]}`);
       }
       if (m.speed < LIMITS.minSpeed) failures.push(`${name} @${cp}s: speed=${m.speed} < ${LIMITS.minSpeed}`);
     }
-    // Pointer avoidance: hold the pointer mid-screen and check boids clear out.
-    const mouse = { x: viewport.width / 2, y: viewport.height / 2 };
-    const near = ({ data, stride }) => {
+    // Pointer avoidance, A/B from the same state: count the boid traffic
+    // through a zone around the busiest spot for POINTER_HOLD seconds without
+    // a pointer, rewind, and count again with the pointer held there.
+    const countNear = ({ data, stride }, p) => {
       let c = 0;
-      for (let i = 0; i < data.length; i += stride) if (Math.hypot(data[i] - mouse.x, data[i + 1] - mouse.y) < POINTER_RADIUS) c++;
+      for (let i = 0; i < data.length; i += stride) if (Math.hypot(data[i] - p.x, data[i + 1] - p.y) < POINTER_RADIUS) c++;
       return c;
     };
-    const total = await page.evaluate(() => window.__boids.count);
-    const expected = (total * Math.PI * POINTER_RADIUS ** 2) / (viewport.width * viewport.height);
-    await page.evaluate(([s, m]) => window.__boids.step(s, 1 / 60, m), [POINTER_HOLD * 60, mouse]);
-    const left = near(await page.evaluate(() => window.__boids.read()));
-    const clear = +(left / expected).toFixed(2);
-    console.log(`pointer held ${POINTER_HOLD}s: ${left} boids within ${POINTER_RADIUS}px (even spread would be ~${expected.toFixed(0)}, ratio ${clear})`);
+    const snapshot = await page.evaluate(() => window.__boids.read());
+    let mouse = null;
+    let best = -1;
+    const margin = Math.min(150, viewport.width / 4);
+    for (let x = margin; x <= viewport.width - margin; x += 20) {
+      for (let y = margin; y <= viewport.height - margin; y += 20) {
+        const c = countNear(snapshot, { x, y });
+        if (c > best) [best, mouse] = [c, { x, y }];
+      }
+    }
+    const traffic = async (withPointer) => {
+      await page.evaluate((s) => window.__boids.write(s), snapshot);
+      let total = 0;
+      for (let f = 0; f < POINTER_HOLD * 60; f += 6) {
+        await page.evaluate(([m]) => window.__boids.step(6, 1 / 60, m), [withPointer ? mouse : null]);
+        total += countNear(await page.evaluate(() => window.__boids.read()), mouse);
+      }
+      return total;
+    };
+    const without = await traffic(false);
+    const withPtr = await traffic(true);
+    const clear = +(withPtr / Math.max(1, without)).toFixed(2);
+    console.log(`pointer held ${POINTER_HOLD}s: traffic within ${POINTER_RADIUS}px ${without} -> ${withPtr} (ratio ${clear})`);
     if (clear > LIMITS.pointerClear) failures.push(`${name}: pointer avoidance ratio=${clear} > ${LIMITS.pointerClear}`);
+
+    const settled = rows.filter((r) => parseInt(r.t) >= 60);
+    const largestMean = +(settled.reduce((a, r) => a + r.largestFlock, 0) / settled.length).toFixed(2);
+    if (largestMean > LIMITS.largestFlockMean) failures.push(`${name}: mean largestFlock=${largestMean} > ${LIMITS.largestFlockMean}`);
 
     errors.forEach((e) => failures.push(`${name}: page error: ${e}`));
     console.log(`\n${name}, ${await page.evaluate(() => window.__boids.count)} boids`);
