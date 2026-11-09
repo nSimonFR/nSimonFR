@@ -13,5 +13,5 @@ const generatePDF = (name: string) => {
 
 generatePDF("FR_LONG");
 generatePDF("FR_SHORT");
-// EN_SHORT.pdf is no longer generated: it is exported from Reactive Resume
-// (~/MyDocuments/PERSO/career) and committed as cv/static/EN_SHORT.pdf.
+// The site's CV link points to the public Reactive Resume page
+// (~/MyDocuments/PERSO/career, cv-staff-architect-en); no PDF is published here.

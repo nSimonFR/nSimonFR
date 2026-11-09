@@ -10,7 +10,7 @@ I'm a fullstack dev working in Paris 🗼
 - ❤️ I love every bit of technology ! I tend to tweak and adjust every possible setting I can - _I like living on the edge_ 😎
 - 📇 Here are my [LinkedIn](https://linkedin.com/in/nSimonFR), [Twitter](https://twitter.com/nsimonfr), [Mail](mailto://contact@nsimon.fr) & [Telegram](https://t.me/nsimon) if you want to reach out (Though, _"I'm French"_)
 
-Also, here's [my website](https://nsimon.fr/) and my [CV](https://nsimon.fr/EN_SHORT.pdf).
+Also, here's [my website](https://nsimon.fr/) and my CV ([EN](https://rpi5.gate-mintaka.ts.net/rxresume/nsimon/cv-staff-architect-en), [FR](https://rpi5.gate-mintaka.ts.net/rxresume/nsimon/cv-architecte-technique-fr)).
 Have a wonderful day !
 
 _______
